@@ -23,3 +23,14 @@ htmlcov/
 .DS_Store
 .idea/
 .vscode/
+
+wfv-toolkit-ship/
+
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
