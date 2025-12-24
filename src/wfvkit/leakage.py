@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable
+from collections.abc import Iterable
 
 
 def embargo_after(test_idx: Iterable[int], embargo: int) -> set[int]:

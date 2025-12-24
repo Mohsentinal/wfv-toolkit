@@ -16,8 +16,8 @@ def test_naive_time_split_basic():
     times = [_d("2025-01-01"), _d("2025-01-02"), _d("2025-01-03"), _d("2025-01-04")]
     train_idx, test_idx = naive_time_split(times, train_end=_d("2025-01-03"))
 
-    assert train_idx == [0, 1]          # strictly < train_end
-    assert test_idx == [2, 3]           # >= train_end
+    assert train_idx == [0, 1]  # strictly < train_end
+    assert test_idx == [2, 3]  # >= train_end
 
 
 def test_walk_forward_splits_counts_and_order():

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import datetime as dt
-from typing import Iterable, Iterator, Sequence
+from collections.abc import Iterator, Sequence
 
 
 def naive_time_split(

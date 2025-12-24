@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import datetime as dt
 
-from wfvkit import naive_time_split, walk_forward_splits, purge_overlap, embargo_after
+from wfvkit import embargo_after, naive_time_split, purge_overlap, walk_forward_splits
 
 
 def main():
@@ -27,7 +27,9 @@ def main():
     embargo = 1
 
     for k, (tr, te) in enumerate(
-        walk_forward_splits(times, train_size=train_size, test_size=test_size, step=step, embargo=embargo),
+        walk_forward_splits(
+            times, train_size=train_size, test_size=test_size, step=step, embargo=embargo
+        ),
         start=1,
     ):
         purged_tr = purge_overlap(tr, te)
