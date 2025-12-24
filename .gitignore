@@ -34,3 +34,8 @@ __pycache__/
 dist/
 build/
 *.egg-info/
+
+*.toml text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.md   text eol=lf
