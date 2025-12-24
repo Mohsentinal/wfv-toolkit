@@ -1,3 +1,4 @@
+# src/wfvkit/splits.py
 from __future__ import annotations
 
 import datetime as dt
@@ -5,25 +6,37 @@ from collections.abc import Iterator, Sequence
 
 
 def naive_time_split(
-    times: Sequence[dt.datetime],
-    train_end: dt.datetime,
+    times: Sequence[dt.datetime], train_end: dt.datetime | int
 ) -> tuple[list[int], list[int]]:
     """
-    Simple chronological split:
-      - train indices: times < train_end
-      - test indices:  times >= train_end
+    Naive time split.
 
-    Assumes `times` are comparable and represent the timeline.
+    Parameters
+    ----------
+    times:
+        Sequence of datetimes, ordered.
+    train_end:
+        Either:
+        - int: index cutoff (exclusive). Example: 6 -> train [0..5], test [6..end]
+        - datetime: time cutoff. Train times strictly before it, test times at/after it.
+
+    Returns
+    -------
+    (train_idx, test_idx)
+        Lists of indices into `times`.
     """
-    train_idx: list[int] = []
-    test_idx: list[int] = []
+    n = len(times)
 
-    for i, t in enumerate(times):
-        if t < train_end:
-            train_idx.append(i)
-        else:
-            test_idx.append(i)
+    # Index cutoff mode
+    if isinstance(train_end, int):
+        cut = train_end
+        if cut < 0 or cut > n:
+            raise ValueError(f"train_end index must be in [0, {n}], got {cut}")
+        return list(range(0, cut)), list(range(cut, n))
 
+    # Datetime cutoff mode
+    train_idx = [i for i, t in enumerate(times) if t < train_end]
+    test_idx = [i for i, t in enumerate(times) if t >= train_end]
     return train_idx, test_idx
 
 
@@ -35,17 +48,18 @@ def walk_forward_splits(
     embargo: int = 0,
 ) -> Iterator[tuple[list[int], list[int]]]:
     """
-    Windowed walk-forward splits on index space (not time-deltas).
+    Generate walk-forward splits on an index basis.
 
-    Example (10 points):
-      train_size=5, test_size=2, step=2
-      -> train [0..4], test [5..6]
-      -> train [2..6], test [7..8]
-      stops before incomplete test window.
+    Yields (train_idx, test_idx). If `embargo > 0`, later utilities can use the embargo
+    after each test segment (we also pass it through in demos, but the split itself
+    does not remove embargo indices from the test set).
 
-    `embargo` is accepted for API symmetry (actual embargo application
-    is handled separately in wfvkit.leakage).
+    Notes
+    -----
+    - train_size, test_size, step are in *number of samples* (indices)
+    - `times` is used only for length/shape consistency; it is assumed ordered.
     """
+    n = len(times)
     if train_size <= 0:
         raise ValueError("train_size must be > 0")
     if test_size <= 0:
@@ -55,9 +69,7 @@ def walk_forward_splits(
     if embargo < 0:
         raise ValueError("embargo must be >= 0")
 
-    n = len(times)
     start = 0
-
     while True:
         train_start = start
         train_end = train_start + train_size
@@ -65,11 +77,10 @@ def walk_forward_splits(
         test_end = test_start + test_size
 
         if test_end > n:
-            break  # incomplete test window → stop
+            break
 
         train_idx = list(range(train_start, train_end))
         test_idx = list(range(test_start, test_end))
-
         yield train_idx, test_idx
 
         start += step
