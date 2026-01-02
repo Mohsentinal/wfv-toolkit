@@ -1,16 +1,19 @@
 # wfv-toolkit (wfvkit)
 
-A tiny Python toolkit for **walk‑forward validation** of time‑ordered data with **purge + embargo** utilities to reduce label leakage (useful for trading/finance ML and any temporal prediction setup).
+A tiny Python toolkit for **walk-forward validation** of time-ordered data with **purge + embargo** utilities to reduce label leakage (useful for trading/finance ML and any temporal prediction setup).
+
+---
 
 ## What you get
 
-- **Naive time split** (baseline): `naive_time_split`
-- **Walk‑forward splits** (rolling windows): `walk_forward_splits`
-- **Leakage guards**
-  - `purge_overlap(train_idx, test_idx)` — removes train indices that overlap test
-  - `embargo_after(test_idx, embargo)` — blocks samples immediately after the test window
-- A runnable example: `examples/demo_naive_vs_purged.py`
-- Tests: `pytest`
+* **Naive time split** (baseline): `naive_time_split`
+* **Walk-forward splits** (rolling windows): `walk_forward_splits`
+* **Leakage guards**
+
+  * `purge_overlap(train_idx, test_idx)` — removes training indices that overlap the test window
+  * `embargo_after(test_idx, embargo)` — blocks samples immediately after the test window
+* A runnable example: `examples/demo_naive_vs_purged.py`
+* Tests: `pytest`
 
 > The core idea is common in financial ML: if labels use a forward horizon, nearby samples can “bleed” information between train/test. Purge and embargo help.
 
@@ -18,7 +21,13 @@ A tiny Python toolkit for **walk‑forward validation** of time‑ordered data w
 
 ## Install
 
-### Option A: editable install (recommended for development)
+### Option A: from PyPI (recommended)
+
+```bash
+pip install wfvkit
+```
+
+### Option B: editable install (development)
 
 ```powershell
 python -m venv .venv
@@ -26,23 +35,55 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -e ".[dev]"
 ```
 
-### Option B: install from GitHub (once you start tagging releases)
+### Option C: install from GitHub tag
 
-```powershell
-pip install "git+https://github.com/Mohsentinal/wfv-toolkit.git@v0.1.0"
+```bash
+pip install "git+https://github.com/Mohsentinal/wfv-toolkit.git@v0.1.3"
 ```
 
 ---
 
 ## Quickstart
 
-### 1) Run tests
+### Minimal example
+
+```python
+import datetime as dt
+
+from wfvkit import (
+    naive_time_split,
+    walk_forward_splits,
+    purge_overlap,
+    embargo_after,
+)
+
+# 10 timestamps (toy example)
+times = [dt.datetime(2025, 1, 1, 0, 0) + dt.timedelta(minutes=i) for i in range(10)]
+
+# 1) naive split: pass an index cutoff OR a datetime cutoff
+train_idx, test_idx = naive_time_split(times, train_end=6)
+train_idx2, test_idx2 = naive_time_split(times, train_end=times[6])
+
+print("naive_idx:", train_idx, test_idx)
+print("naive_dt :", train_idx2, test_idx2)
+
+# 2) walk-forward splits (rolling windows)
+splits = list(walk_forward_splits(times, train_size=5, test_size=2, step=2, embargo=1))
+print("splits:", splits)
+
+# 3) purge + embargo helpers
+tr, te = splits[0]
+print("purged:", purge_overlap(tr, te))
+print("embargo:", sorted(embargo_after(te, embargo=1)))
+```
+
+### Run tests
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
-### 2) Run the demo
+### Run the demo
 
 ```powershell
 .\.venv\Scripts\python.exe examples\demo_naive_vs_purged.py
@@ -69,14 +110,15 @@ from wfvkit import (
 import datetime as dt
 
 times = [dt.datetime(2025, 1, 1) + dt.timedelta(minutes=i) for i in range(10)]
-train_end = times[6]
 
-train_idx, test_idx = naive_time_split(times, train_end=train_end)
-# train_idx -> [0,1,2,3,4,5]
-# test_idx  -> [6,7,8,9]
+# Cut by index
+train_idx, test_idx = naive_time_split(times, train_end=6)
+
+# Or cut by datetime
+train_idx2, test_idx2 = naive_time_split(times, train_end=times[6])
 ```
 
-### Walk‑forward splits + purge + embargo
+### Walk-forward splits + purge + embargo
 
 ```python
 import datetime as dt
@@ -103,11 +145,11 @@ for train_idx, test_idx in walk_forward_splits(
 
 ### Purge
 
-If a sample in **train** overlaps the **test** interval (or shares a window that touches the test range), it can leak information. Purging removes those training indices.
+If a sample in **train** overlaps the **test** interval, it can leak information. Purging removes those overlapping training indices.
 
 ### Embargo
 
-Even after the test window ends, samples **immediately after** can still be “contaminated” if labels depend on future returns/horizons. Embargo blocks a small number of samples after test.
+Even after the test window ends, samples **immediately after** can still be contaminated if labels depend on future horizons. Embargo blocks a small number of samples after the test window.
 
 ---
 
@@ -129,10 +171,10 @@ wfv-toolkit/
 
 ## Roadmap (next nice upgrades)
 
-- Add **purged k‑fold** / **combinatorial purged CV**
-- Add utilities for **event‑based labels** (start/end times per sample)
-- Add richer evaluation helpers (rolling metrics and robustness checks)
-- Provide a small CLI (optional)
+* Add **purged k-fold** / **combinatorial purged CV**
+* Add utilities for **event-based labels** (start/end times per sample)
+* Add richer evaluation helpers (rolling metrics and robustness checks)
+* Provide a small CLI (optional)
 
 ---
 
