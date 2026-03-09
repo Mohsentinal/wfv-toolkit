@@ -11,7 +11,7 @@ def accuracy_score(y_true: Iterable[int], y_pred: Iterable[int]) -> float:
         raise ValueError("y_true and y_pred must have the same length")
     if not yt:
         raise ValueError("y_true and y_pred must be non-empty")
-    matches = sum(int(a == b) for a, b in zip(yt, yp))
+    matches = sum(int(a == b) for a, b in zip(yt, yp, strict=False))
     return matches / len(yt)
 
 
