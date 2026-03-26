@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.1.9 - 2026-03-27
+
+### Added
+- Added `tests/test_evaluate.py` to cover edge cases for `evaluate_splits(...)` and `summarize_scores(...)`.
+- Added `CONTRIBUTING.md` with the exact local workflow for install, lint, test, build, and release prep.
+
+### Changed
+- Polished the README with badges and a sharper explanation of the repo's purpose.
+- Added a `Changelog` URL to package metadata.
+- Bumped package version from `0.1.8` to `0.1.9`.
+
+### Why this matters
+- The repo now reads more like a finished public package and has slightly stronger verification/documentation around the public API.
+
 ## v0.1.8 - 2026-03-08
 
 ### Added

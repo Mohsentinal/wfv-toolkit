@@ -1,5 +1,9 @@
 # wfv-toolkit (wfvkit)
 
+[![CI](https://github.com/Mohsentinal/wfv-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/Mohsentinal/wfv-toolkit/actions/workflows/ci.yml)
+[![PyPI version](https://img.shields.io/pypi/v/wfvkit.svg)](https://pypi.org/project/wfvkit/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 A tiny Python toolkit for **walk-forward validation** of time-ordered data, with **purge**, **embargo**, and **forward-horizon leakage guards** for finance/trading ML and any temporal prediction setup.
 
 ---
@@ -52,7 +56,7 @@ python -m venv .venv
 ### Option D: install from GitHub tag
 
 ```bash
-pip install "git+https://github.com/Mohsentinal/wfv-toolkit.git@v0.1.8"
+pip install "git+https://github.com/Mohsentinal/wfv-toolkit.git@v0.1.9"
 ```
 
 ---
